@@ -6,7 +6,7 @@ import (
 )
 
 type Item struct {
-	Value  string
+	Value  any
 	Expiry time.Time
 }
 
@@ -21,7 +21,7 @@ func NewStore() *Store {
 	}
 }
 
-func (s *Store) Set(key, value string, duration time.Duration) {
+func (s *Store) Set(key string, value any, duration time.Duration) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -36,13 +36,13 @@ func (s *Store) Set(key, value string, duration time.Duration) {
 	}
 }
 
-func (s *Store) Get(key string) (string, bool) {
+func (s *Store) Get(key string) (any, bool) {
 	s.mu.RLock()
 	item, exists := s.data[key]
 	s.mu.RUnlock()
 
 	if !exists {
-		return "", false
+		return nil, false
 	}
 
 	if !item.Expiry.IsZero() && time.Now().After(item.Expiry) {

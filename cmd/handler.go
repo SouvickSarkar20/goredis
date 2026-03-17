@@ -39,7 +39,6 @@ func handleSet(w *resp.Writer, db *store.Store, args resp.Value) error {
 
 	var duration time.Duration
 
-	// Check for optional arguments like EX (Expiry in seconds)
 	if len(args.Array) >= 5 {
 		option := strings.ToUpper(args.Array[3].Str)
 		if option == "EX" {
@@ -69,7 +68,12 @@ func handleGet(w *resp.Writer, db *store.Store, args resp.Value) error {
 		return w.WriteBulkStringNil()
 	}
 
-	return w.WriteBulkString(val)
+	strVal, ok := val.(string)
+	if !ok {
+		return w.WriteError("WRONGTYPE Operation against a key holding the wrong kind of value")
+	}
+
+	return w.WriteBulkString(strVal)
 }
 
 func handleDel(w *resp.Writer, db *store.Store, args resp.Value) error {
