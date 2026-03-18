@@ -3,86 +3,31 @@ package cmd
 import (
 	"goredis/resp"
 	"goredis/store"
-	"strconv"
 	"strings"
-	"time"
 )
+
+type HandlerFunc func(*resp.Writer, *store.Store, resp.Value) error
+
+var routes = map[string]HandlerFunc{
+	"PING":  handlePing,
+	"SET":   handleSet,
+	"GET":   handleGet,
+	"DEL":   handleDel,
+	"LPUSH": handleLPush,
+	"LPOP":  handleLPop,
+}
 
 func Handle(writer *resp.Writer, db *store.Store, input resp.Value) error {
 	command := strings.ToUpper(input.Array[0].Str)
 
-	switch command {
-	case "PING":
-		return handlePing(writer)
-	case "SET":
-		return handleSet(writer, db, input)
-	case "GET":
-		return handleGet(writer, db, input)
-	case "DEL":
-		return handleDel(writer, db, input)
-	default:
-		return writer.WriteError("ERR unknown command '" + command + "'")
-	}
-}
-
-func handlePing(w *resp.Writer) error {
-	return w.WriteSimpleString("PONG")
-}
-
-func handleSet(w *resp.Writer, db *store.Store, args resp.Value) error {
-	if len(args.Array) < 3 {
-		return w.WriteError("ERR wrong number of arguments for 'set' command")
-	}
-
-	key := args.Array[1].Str
-	value := args.Array[2].Str
-
-	var duration time.Duration
-
-	if len(args.Array) >= 5 {
-		option := strings.ToUpper(args.Array[3].Str)
-		if option == "EX" {
-			seconds, err := strconv.Atoi(args.Array[4].Str)
-			if err != nil {
-				return w.WriteError("ERR value is not an integer or out of range")
-			}
-			duration = time.Duration(seconds) * time.Second
-		}
-	}
-
-	db.Set(key, value, duration)
-
-	return w.WriteSimpleString("OK")
-}
-
-func handleGet(w *resp.Writer, db *store.Store, args resp.Value) error {
-	if len(args.Array) != 2 {
-		return w.WriteError("ERR wrong number of arguments for 'get' command")
-	}
-
-	key := args.Array[1].Str
-
-	val, exists := db.Get(key)
-
+	handler, exists := routes[command]
 	if !exists {
-		return w.WriteBulkStringNil()
+		return writer.WriteError("ERR unkown command" + command)
 	}
 
-	strVal, ok := val.(string)
-	if !ok {
-		return w.WriteError("WRONGTYPE Operation against a key holding the wrong kind of value")
-	}
-
-	return w.WriteBulkString(strVal)
+	return handler(writer, db, input)
 }
 
-func handleDel(w *resp.Writer, db *store.Store, args resp.Value) error {
-	if len(args.Array) != 2 {
-		return w.WriteError("ERR wrong number of arguments for 'del' command")
-	}
-
-	key := args.Array[1].Str
-	db.Delete(key)
-
-	return w.WriteInteger(1)
+func handlePing(w *resp.Writer, db *store.Store, args resp.Value) error {
+	return w.WriteSimpleString("PONG")
 }

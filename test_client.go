@@ -24,7 +24,7 @@ func main() {
 	// 2. We construct the exact byte string that `redis-cli SET score 100` sends:
 	// Array of 3 elements: SET, score, 100
 	setRequest := "*3\r\n$3\r\nSET\r\n$5\r\nscore\r\n$3\r\n100\r\n"
-	
+
 	fmt.Printf("Sending SET command: %q\n", setRequest)
 	_, err = conn.Write([]byte(setRequest))
 	if err != nil {
@@ -32,7 +32,6 @@ func main() {
 		return
 	}
 
-	// 3. Read the server's response
 	reader := bufio.NewReader(conn)
 	response, _ := reader.ReadString('\n')
 	fmt.Printf("Server responded: %q\n", response)
@@ -53,6 +52,6 @@ func main() {
 	// 5. Read the server's response
 	response, _ = reader.ReadString('\n')
 	response2, _ := reader.ReadString('\n')
-	
+
 	fmt.Printf("Server responded: %q%q\n", response, response2)
 }
