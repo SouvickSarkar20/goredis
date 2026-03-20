@@ -21,6 +21,14 @@ func (h *Hash) HGet(field string) (string, bool) {
 	return val, ok
 }
 
+func (h *Hash) HDel(field string) bool {
+	_, exists := h.data[field]
+	if exists {
+		delete(h.data, field)
+	}
+	return exists
+}
+
 // STORE METHODS
 
 func (s *Store) HSet(key, field, value string) error {
@@ -62,4 +70,24 @@ func (s *Store) HGet(key, field string) (string, bool, error) {
 
 	val, ok := hash.HGet(field)
 	return val, ok, nil
+}
+
+func (s *Store) HDel(key string, field string) (bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	item, exists := s.data[key]
+
+	hash, exists := item.Value.(*Hash)
+
+	if !exists {
+		return false, nil
+	}
+
+	ok := hash.HDel(field)
+
+	if len(hash.data) == 0 {
+		delete(s.data, key)
+	}
+
+	return ok, nil
 }

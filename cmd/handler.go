@@ -15,6 +15,9 @@ var routes = map[string]HandlerFunc{
 	"DEL":   handleDel,
 	"LPUSH": handleLPush,
 	"LPOP":  handleLPop,
+	"HGET":  handleHGet,
+	"HSET":  handleHAdd,
+	"HDEL":  handleHDel,
 }
 
 func Handle(writer *resp.Writer, db *store.Store, input resp.Value) error {
