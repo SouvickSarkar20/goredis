@@ -16,6 +16,14 @@ func (s *Set) Add(val string) {
 	s.data[val] = struct{}{}
 }
 
+func (s *Set) Remove(val string) bool {
+	_, exists := s.data[val]
+	if exists {
+		delete(s.data, val)
+	}
+	return exists
+}
+
 func (s *Set) Members() []string {
 	result := make([]string, 0, len(s.data))
 	for k := range s.data {
@@ -86,4 +94,27 @@ func (s *Store) SIsMember(key, value string) (bool, error) {
 	}
 
 	return set.IsMember(value), nil
+}
+
+func (s *Store) SRem(key string, value string) (bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	item, exists := s.data[key]
+	if !exists {
+		return false, nil
+	}
+
+	set, ok := item.Value.(*Set)
+	if !ok {
+		return false, fmt.Errorf("WRONGTYPE")
+	}
+
+	removed := set.Remove(value)
+
+	if len(set.data) == 0 {
+		delete(s.data, key)
+	}
+
+	return removed, nil
 }
