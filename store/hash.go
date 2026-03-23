@@ -29,13 +29,16 @@ func (h *Hash) HDel(field string) bool {
 	return exists
 }
 
-// STORE METHODS
-
 func (s *Store) HSet(key, field, value string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	item, exists := s.data[key]
+
+	if exists && isExpired(item) {
+		delete(s.data, key)
+		exists = false
+	}
 
 	var hash *Hash
 
@@ -63,6 +66,11 @@ func (s *Store) HGet(key, field string) (string, bool, error) {
 		return "", false, nil
 	}
 
+	if isExpired(item) {
+		s.Delete(key)
+		return "", false, nil
+	}
+
 	hash, ok := item.Value.(*Hash)
 	if !ok {
 		return "", false, fmt.Errorf("WRONGTYPE Operation against a key holding the wrong kind of value")
@@ -72,22 +80,30 @@ func (s *Store) HGet(key, field string) (string, bool, error) {
 	return val, ok, nil
 }
 
-func (s *Store) HDel(key string, field string) (bool, error) {
+func (s *Store) HDel(key, field string) (bool, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
 	item, exists := s.data[key]
-
-	hash, exists := item.Value.(*Hash)
-
 	if !exists {
 		return false, nil
 	}
 
-	ok := hash.HDel(field)
+	if isExpired(item) {
+		delete(s.data, key)
+		return false, nil
+	}
+
+	hash, ok := item.Value.(*Hash)
+	if !ok {
+		return false, fmt.Errorf("WRONGTYPE Operation against a key holding the wrong kind of value")
+	}
+
+	removed := hash.HDel(field)
 
 	if len(hash.data) == 0 {
 		delete(s.data, key)
 	}
 
-	return ok, nil
+	return removed, nil
 }

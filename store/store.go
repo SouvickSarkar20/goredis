@@ -21,6 +21,10 @@ func NewStore() *Store {
 	}
 }
 
+func isExpired(item Item) bool {
+	return !item.Expiry.IsZero() && time.Now().After(item.Expiry)
+}
+
 func (s *Store) Set(key string, value any, duration time.Duration) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

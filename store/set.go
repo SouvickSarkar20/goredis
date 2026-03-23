@@ -37,13 +37,17 @@ func (s *Set) IsMember(val string) bool {
 	return exists
 }
 
-// STORE METHODS
-
 func (s *Store) SAdd(key, value string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	item, exists := s.data[key]
+
+	// TTL logic: expired key behaves like missing key
+	if exists && isExpired(item) {
+		delete(s.data, key)
+		exists = false
+	}
 
 	var set *Set
 
@@ -71,6 +75,12 @@ func (s *Store) SMembers(key string) ([]string, error) {
 		return []string{}, nil
 	}
 
+	// TTL logic: expired key behaves like missing key
+	if isExpired(item) {
+		s.Delete(key)
+		return []string{}, nil
+	}
+
 	set, ok := item.Value.(*Set)
 	if !ok {
 		return nil, fmt.Errorf("WRONGTYPE Operation against a key holding the wrong kind of value")
@@ -85,6 +95,12 @@ func (s *Store) SIsMember(key, value string) (bool, error) {
 	s.mu.RUnlock()
 
 	if !exists {
+		return false, nil
+	}
+
+	// TTL logic: expired key behaves like missing key
+	if isExpired(item) {
+		s.Delete(key)
 		return false, nil
 	}
 
@@ -105,9 +121,15 @@ func (s *Store) SRem(key string, value string) (bool, error) {
 		return false, nil
 	}
 
+	// TTL logic: expired key behaves like missing key
+	if isExpired(item) {
+		delete(s.data, key)
+		return false, nil
+	}
+
 	set, ok := item.Value.(*Set)
 	if !ok {
-		return false, fmt.Errorf("WRONGTYPE")
+		return false, fmt.Errorf("WRONGTYPE Operation against a key holding the wrong kind of value")
 	}
 
 	removed := set.Remove(value)

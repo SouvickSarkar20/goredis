@@ -41,11 +41,16 @@ func (s *Store) LPush(key, value string) error {
 	item, exists := s.data[key]
 	s.mu.RUnlock()
 
+	if exists && isExpired(item) {
+		delete(s.data, key)
+		exists = false
+	}
+
 	var linkedList *List
 
 	if !exists {
 		linkedList = NewList()
-		s.Set(key, linkedList, 0)
+		s.data[key] = Item{Value: linkedList}
 	} else {
 		var ok bool
 		linkedList, ok = item.Value.(*List)
@@ -60,11 +65,16 @@ func (s *Store) LPush(key, value string) error {
 }
 
 func (s *Store) LPop(key string) (string, bool, error) {
-	s.mu.RLock()
+	s.mu.Lock()
 	item, exists := s.data[key]
-	s.mu.RUnlock()
+	s.mu.Unlock()
 
 	if !exists {
+		return "", false, nil
+	}
+
+	if isExpired(item) {
+		delete(s.data, key)
 		return "", false, nil
 	}
 
