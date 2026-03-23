@@ -27,38 +27,50 @@ func ApplyAOFCommand(db *store.Store, args []string) error {
 		if len(args) != 3 && len(args) != 5 {
 			return fmt.Errorf("invalid SET args in AOF")
 		}
+
+		key := args[1]
+		value := args[2]
+
 		if len(args) == 3 {
-			db.Set(args[1], args[2], 0)
+			db.Set(key, value, 0)
 			return nil
 		}
-		if strings.ToUpper(args[3]) != "EX" {
-			return fmt.Errorf("unsupported SET option in AOF: %s", args[3])
+
+		opt := strings.ToUpper(args[3])
+		raw := args[4]
+
+		if opt != "EX" {
+			return fmt.Errorf("unsupported SET option in AOF: %s", opt)
 		}
-		sec, err := strconv.Atoi(args[4])
+		sec, err := strconv.Atoi(raw)
 		if err != nil {
 			return fmt.Errorf("invalid EX value: %w", err)
 		}
-		db.Set(args[1], args[2], time.Duration(sec)*time.Second)
+		db.Set(key, value, time.Duration(sec)*time.Second)
 		return nil
 
 	case "DEL":
 		if len(args) != 2 {
 			return fmt.Errorf("invalid DEL args in AOF")
 		}
-		db.Delete(args[1])
+		key := args[1]
+		db.Delete(key)
 		return nil
 
 	case "LPUSH":
 		if len(args) != 3 {
 			return fmt.Errorf("invalid LPUSH args in AOF")
 		}
-		return db.LPush(args[1], args[2])
+		key := args[1]
+		value := args[2]
+		return db.LPush(key, value)
 
 	case "LPOP":
 		if len(args) != 2 {
 			return fmt.Errorf("invalid LPOP args in AOF")
 		}
-		db.LPop(args[1])
+		key := args[1]
+		db.LPop(key)
 		return nil
 
 	case "HSET":
