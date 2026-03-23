@@ -9,15 +9,19 @@ import (
 type HandlerFunc func(*resp.Writer, *store.Store, resp.Value) error
 
 var routes = map[string]HandlerFunc{
-	"PING":  handlePing,
-	"SET":   handleSet,
-	"GET":   handleGet,
-	"DEL":   handleDel,
-	"LPUSH": handleLPush,
-	"LPOP":  handleLPop,
-	"HGET":  handleHGet,
-	"HSET":  handleHAdd,
-	"HDEL":  handleHDel,
+	"PING":      handlePing,
+	"SET":       handleSet,
+	"GET":       handleGet,
+	"DEL":       handleDel,
+	"LPUSH":     handleLPush,
+	"LPOP":      handleLPop,
+	"HGET":      handleHGet,
+	"HSET":      handleHAdd,
+	"HDEL":      handleHDel,
+	"SMEMBERS":  handleSMembers,
+	"SADD":      handleSAdd,
+	"SISMEMBER": handleSIsMember,
+	"SREM":      handleSRem,
 }
 
 func Handle(writer *resp.Writer, db *store.Store, input resp.Value) error {
@@ -25,7 +29,7 @@ func Handle(writer *resp.Writer, db *store.Store, input resp.Value) error {
 
 	handler, exists := routes[command]
 	if !exists {
-		return writer.WriteError("ERR unkown command" + command)
+		return writer.WriteError("ERR unknown command " + command)
 	}
 
 	return handler(writer, db, input)
