@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"goredis/persistence"
 	"goredis/resp"
 	"goredis/store"
 	"strings"
@@ -24,7 +25,29 @@ var routes = map[string]HandlerFunc{
 	"SREM":      handleSRem,
 }
 
+var aofLogger *persistence.AOF
+
+var mutatingCommands = map[string]struct{}{
+	"SET":   {},
+	"DEL":   {},
+	"LPUSH": {},
+	"LPOP":  {},
+	"HSET":  {},
+	"HDEL":  {},
+	"SADD":  {},
+	"SREM":  {},
+}
+
+// SetAOF injects the AOF logger into the command handler.
+func SetAOF(aof *persistence.AOF) {
+	aofLogger = aof
+}
+
 func Handle(writer *resp.Writer, db *store.Store, input resp.Value) error {
+	if len(input.Array) == 0 {
+		return writer.WriteError("ERR empty command")
+	}
+
 	command := strings.ToUpper(input.Array[0].Str)
 
 	handler, exists := routes[command]
@@ -32,7 +55,23 @@ func Handle(writer *resp.Writer, db *store.Store, input resp.Value) error {
 		return writer.WriteError("ERR unknown command " + command)
 	}
 
-	return handler(writer, db, input)
+	// Execute handler
+	if err := handler(writer, db, input); err != nil {
+		return err
+	}
+
+	// Log mutating commands to AOF (after successful execution)
+	if _, shouldLog := mutatingCommands[command]; shouldLog && aofLogger != nil {
+		args := make([]string, 0, len(input.Array))
+		for _, v := range input.Array {
+			args = append(args, v.Str)
+		}
+		if err := aofLogger.AppendCommand(args); err != nil {
+			return writer.WriteError("ERR AOF append failed")
+		}
+	}
+
+	return nil
 }
 
 func handlePing(w *resp.Writer, db *store.Store, args resp.Value) error {

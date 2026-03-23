@@ -42,7 +42,7 @@ func handleGet(w *resp.Writer, db *store.Store, input resp.Value) error {
 	value, exists := db.Get(key)
 
 	if !exists {
-		return w.WriteError("ERR : The value of this key does not exist")
+		return w.WriteBulkString("") // Return empty string if key does not exist
 	}
 
 	strVal, ok := value.(string)

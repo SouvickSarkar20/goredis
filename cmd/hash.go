@@ -14,13 +14,16 @@ func handleHAdd(w *resp.Writer, db *store.Store, input resp.Value) error {
 	}
 
 	key := input.Array[1].Str
-	field := input.Array[2].Str
 
-	for i := 2; i < len(input.Array); i++ {
-		value := input.Array[i].Str
-		error := db.HSet(key, field, value)
-		if error != nil {
-			return w.WriteError(error.Error())
+	for i := 2; i < len(input.Array); i += 2 {
+		if i+1 >= len(input.Array) {
+			return w.WriteError("ERR syntax error")
+		}
+		field := input.Array[i].Str
+		value := input.Array[i+1].Str
+		err := db.HSet(key, field, value)
+		if err != nil {
+			return w.WriteError(err.Error())
 		}
 	}
 
@@ -37,8 +40,12 @@ func handleHGet(w *resp.Writer, db *store.Store, input resp.Value) error {
 
 	value, exists, err := db.HGet(key, field)
 
+	if err != nil {
+		return w.WriteError(err.Error())
+	}
+
 	if !exists {
-		return w.WriteError("The value does not exist")
+		return w.WriteBulkString("") // Return empty string if field does not exist
 	}
 
 	if err != nil {

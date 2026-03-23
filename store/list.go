@@ -37,9 +37,9 @@ func (l *List) LPop() (string, bool) {
 }
 
 func (s *Store) LPush(key, value string) error {
-	s.mu.RLock()
+	s.mu.Lock()
 	item, exists := s.data[key]
-	s.mu.RUnlock()
+	s.mu.Unlock()
 
 	if exists && isExpired(item) {
 		delete(s.data, key)

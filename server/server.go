@@ -6,6 +6,7 @@ import (
 	"net"
 
 	"goredis/cmd"
+	"goredis/persistence"
 	"goredis/resp"
 	"goredis/store"
 )
@@ -21,8 +22,24 @@ func Start(port string) error {
 
 	fmt.Printf("Listening on %s\n", port)
 
-	// Create our single global instance of the database store!
 	db := store.NewStore()
+
+	aof, err := persistence.OpenAOF("appendonly.aof", persistence.FsyncAlways)
+	if err != nil {
+		return fmt.Errorf("failed to open AOF: %w", err)
+	}
+	defer aof.Close()
+
+	err = persistence.ReplayAOFTruncateTail("appendonly.aof", func(args []string) error {
+		return cmd.ApplyAOFCommand(db, args)
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to replay AOF: %w", err)
+	}
+	fmt.Println("AOF replay complete")
+
+	cmd.SetAOF(aof)
 
 	for {
 		conn, err := listener.Accept()
@@ -30,30 +47,20 @@ func Start(port string) error {
 			fmt.Println("Error accepting connection:", err)
 			continue
 		}
-		
-		// Pass the shared database to each new client connection
 		go handleConnection(conn, db)
 	}
 }
 
-// handleConnection manages the lifecycle of a single client connection.
 func handleConnection(conn net.Conn, db *store.Store) {
-	// Let's print the remote address so we know who connected.
+
 	remoteAddr := conn.RemoteAddr().String()
 	fmt.Printf("New client connected: %s\n", remoteAddr)
 
-	// 1. Ensure the connection is strictly closed when the waiter is done serving the table.
-	// This prevents memory and file-descriptor leaks.
 	defer conn.Close()
 
-	// 2. We initialize our RESP writer for this client.
 	w := resp.NewWriter(conn)
-	
-	// 3. We initialize our RESP parser for this client.
-	// It wraps the raw connection and handles all the buffering and byte-reading for us!
 	p := resp.NewParser(conn)
 
-	// 4. The Waiter's infinite loop. Stay at the table until the client leaves.
 	for {
 		// ParseOne blocks until the client sends a complete RESP value (like an Array of Strings).
 		value, err := p.ParseOne()

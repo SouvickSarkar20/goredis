@@ -57,8 +57,12 @@ func (s *Store) Get(key string) (any, bool) {
 	return item.Value, true
 }
 
-func (s *Store) Delete(key string) {
+func (s *Store) Delete(key string) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	delete(s.data, key)
+	_, exists := s.data[key]
+	if exists {
+		delete(s.data, key)
+	}
+	return exists
 }
