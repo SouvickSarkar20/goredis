@@ -22,13 +22,13 @@ type commandResponse struct {
 func StartHTTP(addr string, db *store.Store) error {
 	mux := http.NewServeMux()
 
-	// Serve the playground HTML at root
-	mux.HandleFunc("/", servePlayground)
-
-	// Accept commands as JSON POST
+	// /api/command — registered first, more specific
 	mux.HandleFunc("/api/command", func(w http.ResponseWriter, r *http.Request) {
 		handleCommand(w, r, db)
 	})
+
+	// / — catch-all, serves everything in web/dist/
+	mux.Handle("/", http.FileServer(http.Dir("web/dist")))
 
 	return http.ListenAndServe(addr, mux)
 }

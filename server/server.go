@@ -2,13 +2,13 @@ package server
 
 import (
 	"fmt"
-	"io"
-	"net"
-
 	"goredis/cmd"
 	"goredis/persistence"
 	"goredis/resp"
 	"goredis/store"
+	"goredis/web"
+	"io"
+	"net"
 )
 
 func Start(port string) error {
@@ -40,6 +40,13 @@ func Start(port string) error {
 	fmt.Println("AOF replay complete")
 
 	cmd.SetAOF(aof)
+
+	go func() {
+		fmt.Println("Web UI starting on :8080")
+		if err := web.StartHTTP(":8080", db); err != nil {
+			fmt.Println("HTTP server error:", err)
+		}
+	}()
 
 	for {
 		conn, err := listener.Accept()
