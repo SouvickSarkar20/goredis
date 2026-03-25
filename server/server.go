@@ -9,6 +9,7 @@ import (
 	"goredis/web"
 	"io"
 	"net"
+	"os"
 )
 
 func Start(port string) error {
@@ -24,13 +25,14 @@ func Start(port string) error {
 
 	db := store.NewStore()
 
-	aof, err := persistence.OpenAOF("appendonly.aof", persistence.FsyncAlways)
+	os.MkdirAll("data", 0755) // create the data folder if it doesn't exist
+	aof, err := persistence.OpenAOF("data/appendonly.aof", persistence.FsyncAlways)
 	if err != nil {
 		return fmt.Errorf("failed to open AOF: %w", err)
 	}
 	defer aof.Close()
 
-	err = persistence.ReplayAOFTruncateTail("appendonly.aof", func(args []string) error {
+	err = persistence.ReplayAOFTruncateTail("data/appendonly.aof", func(args []string) error {
 		return cmd.ApplyAOFCommand(db, args)
 	})
 

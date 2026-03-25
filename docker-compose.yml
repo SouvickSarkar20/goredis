@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  goredis:
+    # Build the image from the Dockerfile in the current directory
+    build: .
+
+    container_name: goredis
+
+    ports:
+      # Format is "host_port:container_port"
+      # Left side = port on YOUR machine or server
+      # Right side = port inside the container
+      - "6379:6379"   # Redis TCP protocol
+      - "8080:8080"   # Web UI
+
+    # Automatically restart if the server crashes or the machine reboots
+    restart: unless-stopped
+
+    volumes:
+      # Mount a local folder into the container for the AOF file
+      # ./data on your machine maps to /app/data inside the container
+      # This means your Redis data survives even if the container is deleted
+      - ./data:/app/data
