@@ -1,40 +1,29 @@
 version: '3.8'
 
 services:
+
   goredis:
-    # Build the image from the Dockerfile in the current directory
     build: .
-
     container_name: goredis
-
-    # Automatically restart if the server crashes or the machine reboots
     restart: unless-stopped
-
     volumes:
-      # Mount a local folder into the container for the AOF file
-      # ./data on your machine maps to /app/data inside the container
-      # This means your Redis data survives even if the container is deleted
       - ./data:/app/data
-    
     networks:
       - goredis_network
 
-    nginx:
-      image : nginx:alpine
-      container_name: nginx
-
-      ports:
-        - "80:80"
-
-      volumes:
-        - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      
-      depends_on:
-        - goredis
-      
-      networks:
-        - goredis_network
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - goredis
+    restart: unless-stopped
+    networks:
+      - goredis_network
 
 networks:
   goredis_network:
-    driver: bridge 
+    driver: bridge
