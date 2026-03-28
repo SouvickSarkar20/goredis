@@ -1,0 +1,45 @@
+/* ── Tokyo Night color palette ────────────────────────────────────────────── */
+:root {
+  --bg:        #1a1b26;   /* main background */
+  --bg-dark:   #13131a;   /* darker panels */
+  --bg-light:  #1f2335;   /* sidebar / elevated surfaces */
+  --border:    #292e42;   /* dividers */
+  --comment:   #565f89;   /* muted / dim text */
+  --text:      #a9b1d6;   /* normal text */
+  --bright:    #c0caf5;   /* bright / primary text */
+
+  /* syntax colors — exactly what redis-cli uses */
+  --red:      #f7768e;
+  --green:    #9ece6a;
+  --yellow:   #e0af68;
+  --blue:     #7aa2f7;
+  --cyan:     #7dcfff;
+  --magenta:  #bb9af7;
+  --orange:   #ff9e64;
+
+  --mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', ui-monospace, monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-dark);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* slim scrollbar throughout */
+::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--border); border-radius: 2px; }
+
+button { cursor: pointer; font-family: var(--mono); }
+input  { font-family: var(--mono); }
