@@ -16,6 +16,33 @@ func NewWriter(w io.Writer) *Writer {
 	return &Writer{writer: w}
 }
 
+// Write sends a complete RESP Value to the connection.
+func (w *Writer) Write(v Value) error {
+	switch v.Typ {
+	case "SimpleString":
+		return w.WriteSimpleString(v.Str)
+	case "Error":
+		return w.WriteError(v.Str)
+	case "Integer":
+		return w.WriteInteger(int64(v.Num))
+	case "BulkString":
+		return w.WriteBulkString(v.Str)
+	case "Array":
+		err := w.WriteArray(len(v.Array))
+		if err != nil {
+			return err
+		}
+		for _, val := range v.Array {
+			err = w.Write(val)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	return nil
+}
+
 // WriteSimpleString writes a RESP Simple String.
 // In RESP, a Simple String starts with '+' and ends with '\r\n'.
 // For example, if s is "OK", this writes "+OK\r\n".

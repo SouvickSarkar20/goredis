@@ -39,10 +39,43 @@ func (p *Parser) ParseOne() (Value, error) {
 		return p.parseArray()
 	case '$':
 		return p.parseBulkString()
+	case '+':
+		return p.parseSimpleString()
+	case '-':
+		return p.parseError()
+	case ':':
+		return p.parseInteger()
 	default:
-		// GoRedis currently only expects clients to send Arrays of BulkStrings.
 		return Value{}, fmt.Errorf("unknown RESP type byte: %c", typ)
 	}
+}
+
+func (p *Parser) parseSimpleString() (Value, error) {
+	line, _, err := p.readLine()
+	if err != nil {
+		return Value{}, err
+	}
+	return Value{Typ: "SimpleString", Str: string(line)}, nil
+}
+
+func (p *Parser) parseError() (Value, error) {
+	line, _, err := p.readLine()
+	if err != nil {
+		return Value{}, err
+	}
+	return Value{Typ: "Error", Str: string(line)}, nil
+}
+
+func (p *Parser) parseInteger() (Value, error) {
+	line, _, err := p.readLine()
+	if err != nil {
+		return Value{}, err
+	}
+	i, err := strconv.Atoi(string(line))
+	if err != nil {
+		return Value{}, err
+	}
+	return Value{Typ: "Integer", Num: i}, nil
 }
 
 // readLine is a helper to read bytes until we hit '\r\n'.
