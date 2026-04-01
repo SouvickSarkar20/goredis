@@ -35,12 +35,12 @@ You can interact with your GoRedis server directly from your terminal or integra
 
 **1. Install the SDK:**
 ```bash
-go get github.com/krishsinghhura/goredis
+go get github.com/krishsinghhura/go-redis
 ```
 
 **2. Use it in your code:**
 ```go
-import "github.com/krishsinghhura/goredis"
+import "github.com/krishsinghhura/go-redis"
 
 client, _ := goredis.NewClient("goredis.me:6379")
 client.Set("username", "Krish")

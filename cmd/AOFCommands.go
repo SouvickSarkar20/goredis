@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/krishsinghhura/goredis/store"
+	"github.com/krishsinghhura/go-redis/store"
 )
 
 // ApplyAOFCommand applies one replayed command directly to store.
