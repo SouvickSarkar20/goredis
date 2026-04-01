@@ -27,11 +27,33 @@ docker compose up -d --build
 
 ---
 
-## ⚡ Using the GoRedis SDKs
+## ⚡ Using the GoRedis Ecosystem
 
-You can interact with your GoRedis server directly from your terminal or integrate it into your apps using our official SDKs.
+You can interact with your GoRedis server directly from your terminal or integrate it into your apps using our official tools.
 
-### 🍱 Go SDK
+### GoRedis CLI
+The fastest way to get the `goredis-cli` command on your machine without cloning the repo:
+
+**1. Install globally (Recommended):**
+```bash
+go install github.com/krishsinghhura/go-redis/cli@latest
+```
+
+**2. Run it!**
+```bash
+cli goredis.me:6379 
+```
+
+**3. Or run from source:**
+```bash
+# If the repo is cloned locally:
+go run cli/main.go goredis.me:6379
+```
+
+---
+
+### GoRedis SDK
+To integrate GoRedis into your own Go applications:
 
 **1. Install the SDK:**
 ```bash
@@ -42,8 +64,13 @@ go get github.com/krishsinghhura/go-redis
 ```go
 import "github.com/krishsinghhura/go-redis"
 
-client, _ := goredis.NewClient("goredis.me:6379")
-client.Set("username", "Krish")
+func main() {
+    client, _ := goredis.NewClient("goredis.me:6379")
+    defer client.Close()
+
+    client.Set("username", "Krish")
+    val, _ := client.Get("username")
+}
 ```
 
 ---
