@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"goredis/resp"
+	"github.com/krishsinghhura/goredis/resp"
 	"net"
 	"os"
 	"strings"

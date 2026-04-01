@@ -27,22 +27,24 @@ docker compose up -d --build
 
 ---
 
-## ⚡ Using the GoRedis CLI
+## ⚡ Using the GoRedis SDKs
 
-You can interact with your GoRedis server directly from your terminal **without needing to install official Redis**.
+You can interact with your GoRedis server directly from your terminal or integrate it into your apps using our official SDKs.
 
-### Connect to GoRedis Cloud (`goredis.me`)
+### 🍱 Go SDK
 
-**1. Clone the repository:**
+**1. Install the SDK:**
 ```bash
-git clone https://github.com/krishsinghhura/goredis.git && cd goredis
+go get github.com/krishsinghhura/goredis
 ```
 
-**2. Run the interactive CLI:**
-```bash
-go run cli/main.go
+**2. Use it in your code:**
+```go
+import "github.com/krishsinghhura/goredis"
+
+client, _ := goredis.NewClient("goredis.me:6379")
+client.Set("username", "Krish")
 ```
-*(Optionally you can pass a host like: `go run cli/main.go localhost:6379` for local testing).*
 
 ---
 

@@ -3,9 +3,9 @@ package web
 import (
 	"bytes"
 	"encoding/json"
-	"goredis/cmd"
-	"goredis/resp"
-	"goredis/store"
+	"github.com/krishsinghhura/goredis/cmd"
+	"github.com/krishsinghhura/goredis/resp"
+	"github.com/krishsinghhura/goredis/store"
 	"net/http"
 	"strings"
 )

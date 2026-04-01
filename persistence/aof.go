@@ -1,7 +1,7 @@
 package persistence
 
 import (
-	"goredis/resp"
+	"github.com/krishsinghhura/goredis/resp"
 	"os"
 	"sync"
 )

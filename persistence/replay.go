@@ -3,7 +3,7 @@ package persistence
 import (
 	"errors"
 	"fmt"
-	"goredis/resp"
+	"github.com/krishsinghhura/goredis/resp"
 	"io"
 	"os"
 )

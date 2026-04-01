@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"goredis/server"
+	"github.com/krishsinghhura/goredis/server"
 	"os"
 )
 

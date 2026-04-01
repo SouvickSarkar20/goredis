@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"goredis/resp"
-	"goredis/store"
+	"github.com/krishsinghhura/goredis/resp"
+	"github.com/krishsinghhura/goredis/store"
 	"strconv"
 	"strings"
 	"time"
