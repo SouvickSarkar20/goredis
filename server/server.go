@@ -2,11 +2,11 @@ package server
 
 import (
 	"fmt"
-	"goredis/cmd"
-	"goredis/persistence"
-	"goredis/resp"
-	"goredis/store"
-	"goredis/web"
+	"github.com/krishsinghhura/go-redis/cmd"
+	"github.com/krishsinghhura/go-redis/persistence"
+	"github.com/krishsinghhura/go-redis/resp"
+	"github.com/krishsinghhura/go-redis/store"
+	"github.com/krishsinghhura/go-redis/web"
 	"io"
 	"net"
 	"os"

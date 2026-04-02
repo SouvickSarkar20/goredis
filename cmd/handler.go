@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"goredis/persistence"
-	"goredis/resp"
-	"goredis/store"
+	"github.com/krishsinghhura/go-redis/persistence"
+	"github.com/krishsinghhura/go-redis/resp"
+	"github.com/krishsinghhura/go-redis/store"
 	"strings"
 )
 

@@ -3,9 +3,9 @@ package web
 import (
 	"bytes"
 	"encoding/json"
-	"goredis/cmd"
-	"goredis/resp"
-	"goredis/store"
+	"github.com/krishsinghhura/go-redis/cmd"
+	"github.com/krishsinghhura/go-redis/resp"
+	"github.com/krishsinghhura/go-redis/store"
 	"net/http"
 	"strings"
 )

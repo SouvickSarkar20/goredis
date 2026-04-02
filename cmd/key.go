@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"goredis/resp"
-	"goredis/store"
+	"github.com/krishsinghhura/go-redis/resp"
+	"github.com/krishsinghhura/go-redis/store"
 )
 
 func handleDel(w *resp.Writer, db *store.Store, args resp.Value) error {
