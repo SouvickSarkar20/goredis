@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/krishsinghhura/go-redis/server"
+	"github.com/SouvickSarkar20/goredis/server"
 	"os"
 )
 

@@ -1,7 +1,7 @@
 package persistence
 
 import (
-	"github.com/krishsinghhura/go-redis/resp"
+	"github.com/SouvickSarkar20/goredis/resp"
 	"os"
 	"sync"
 )

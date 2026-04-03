@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/krishsinghhura/go-redis/resp"
+	"github.com/SouvickSarkar20/goredis/resp"
 	"net"
 	"os"
 	"strings"

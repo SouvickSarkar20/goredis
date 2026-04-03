@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/krishsinghhura/go-redis/resp"
+	"github.com/SouvickSarkar20/goredis/resp"
 )
 
 // Client represents a GoRedis client.

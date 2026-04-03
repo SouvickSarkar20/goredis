@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/krishsinghhura/go-redis/resp"
-	"github.com/krishsinghhura/go-redis/store"
+	"github.com/SouvickSarkar20/goredis/resp"
+	"github.com/SouvickSarkar20/goredis/store"
 )
 
 // HSET user:1 name Souvick
